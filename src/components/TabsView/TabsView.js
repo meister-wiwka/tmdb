@@ -12,10 +12,11 @@ export default class TabsView extends Component {
 
   state = {
     ratedMovies: null,
-    error: null,
     loading: true,
     ratingList: {},
     activeTab: '1',
+    hasError: false,
+    errorMessage: null,
   };
 
   componentDidMount() {
@@ -38,7 +39,9 @@ export default class TabsView extends Component {
         })
         .catch((error) => {
           this.setState({
-            isError: <Alert type="error" message={error.name} description={error.message} />,
+            hasError: true,
+            errorMessage: error.message,
+            loading: false,
           });
         });
     } else {
@@ -53,7 +56,8 @@ export default class TabsView extends Component {
       .then((res) => {
         if (res.total_results === 0) {
           this.setState({
-            error: <Alert type="info" message="You haven't rated any movies yet" />,
+            hasError: true,
+            errorMessage: 'You havent rated any movies yet',
             loading: false,
           });
         }
@@ -69,13 +73,8 @@ export default class TabsView extends Component {
       })
       .catch((error) => {
         this.setState({
-          error: (
-            <Alert
-              type="error"
-              message={error.name}
-              description={`${error.message}. The service may not be available in your country.`}
-            />
-          ),
+          hasError: true,
+          errorMessage: `${error.message}. The service may not be available in your country.`,
           loading: false,
         });
       });
@@ -101,13 +100,8 @@ export default class TabsView extends Component {
       })
       .catch((error) => {
         this.setState({
-          error: (
-            <Alert
-              type="error"
-              message={error.name}
-              description={`${error.message}. The service may not be available in your country.`}
-            />
-          ),
+          hasError: true,
+          errorMessage: `${error.message}. The service may not be available in your country.`,
           loading: false,
         });
       });
@@ -136,7 +130,7 @@ export default class TabsView extends Component {
       this.setState({
         ratedMovies: { ...this.state.ratedMovies, results: newArr },
         ratingList: { ...this.state.ratingList, [movie.id]: value },
-        error: null,
+        hasError: false,
       });
     } else {
       this.setState({
@@ -146,11 +140,12 @@ export default class TabsView extends Component {
   };
 
   render() {
-    const { ratedMovies, error, loading, ratingList } = this.state;
+    const { ratedMovies, loading, ratingList, hasError, errorMessage } = this.state;
 
-    const hasData = !(loading || error);
+    const hasData = !(loading || hasError);
     const spinner = loading ? <Spinner /> : null;
     const content = hasData ? <MovieList movies={ratedMovies} onChangePage={this.onChangePage} /> : null;
+    const error = hasError ? <Alert type="error" message={errorMessage} /> : null;
 
     const items = [
       {

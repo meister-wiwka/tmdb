@@ -57,8 +57,6 @@ export default class App extends Component {
     const { genres, error, loading } = this.state;
 
     const hasData = !(loading || error);
-    const spinner = loading ? <Spinner /> : null;
-    const content = hasData ? <TabsView /> : null;
 
     return (
       <Layout>
@@ -68,9 +66,13 @@ export default class App extends Component {
               <Alert message="Error" description="No internet connection" type="error" />
             </Offline>
             <Online>
-              {spinner}
+              {loading && <Spinner />}
               {error}
-              <MyContext.Provider value={genres}>{content}</MyContext.Provider>
+              {hasData && (
+                <MyContext.Provider value={genres}>
+                  <TabsView />
+                </MyContext.Provider>
+              )}
             </Online>
           </div>
         </Content>
