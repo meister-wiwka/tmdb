@@ -15,10 +15,17 @@ export default class TabsView extends Component {
     error: null,
     loading: true,
     ratingList: {},
+    activeTab: '1',
   };
 
   componentDidMount() {
     this.initGuestData();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.activeTab !== this.state.activeTab && this.state.activeTab === '2') {
+      this.getRatedMovies(this.state.ratedMovies?.page || 1);
+    }
   }
 
   initGuestData = () => {
@@ -27,7 +34,7 @@ export default class TabsView extends Component {
         .newGuestSession()
         .then((id) => {
           localStorage.setItem('guest_session_id', JSON.stringify(id));
-          this.getRatedMovies();
+          this.getRatedMovies(1);
         })
         .catch((error) => {
           this.setState({
@@ -35,17 +42,19 @@ export default class TabsView extends Component {
           });
         });
     } else {
-      this.getRatedMovies();
+      this.getRatedMovies(1);
     }
   };
 
-  getRatedMovies = () => {
+  getRatedMovies = (page = 1) => {
+    this.setState({ loading: true });
     this.tmdbService
-      .getRatedMovies(1)
+      .getRatedMovies(page)
       .then((res) => {
         if (res.total_results === 0) {
           this.setState({
             error: <Alert type="info" message="You haven't rated any movies yet" />,
+            loading: false,
           });
         }
         if (res.total_pages === 1) {
@@ -169,7 +178,13 @@ export default class TabsView extends Component {
           onChangeRating: this.onChangeRating,
         }}
       >
-        <Tabs defaultActiveKey="1" items={items} centered tabBarStyle={{ marginLeft: 'auto', marginRight: 'auto' }} />
+        <Tabs
+          onChange={(key) => this.setState({ activeTab: key })}
+          defaultActiveKey="1"
+          items={items}
+          centered
+          tabBarStyle={{ marginLeft: 'auto', marginRight: 'auto' }}
+        />
       </RatingContext.Provider>
     );
   }
