@@ -2,9 +2,15 @@ import { List } from 'antd';
 import React from 'react';
 
 import MovieCard from '../MovieCard';
+import TMDBservice from '../../services/TMDBservice'; // Импортируем сервис
 
 const MovieList = ({ movies, onChangePage }) => {
   const { results, total_pages, page } = movies;
+
+  const getPoster = (path) => {
+    const tmdbService = new TMDBservice();
+    return tmdbService.getPoster(path);
+  };
 
   return (
     <List
@@ -20,7 +26,7 @@ const MovieList = ({ movies, onChangePage }) => {
       dataSource={results}
       renderItem={(item) => (
         <List.Item key={item.id}>
-          <MovieCard movie={item} />
+          <MovieCard movie={item} vote_average={item.vote_average} getPoster={getPoster} />
         </List.Item>
       )}
       pagination={{
