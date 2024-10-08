@@ -34,13 +34,7 @@ export default class App extends Component {
       })
       .catch((error) => {
         this.setState({
-          error: (
-            <Alert
-              type="error"
-              message={error.name}
-              description={`${error.message}. The service may not be available in your country.`}
-            />
-          ),
+          error: `${error.name}: ${error.message}. The service may not be available in your country.`,
           loading: false,
         });
       });
@@ -67,7 +61,7 @@ export default class App extends Component {
             </Offline>
             <Online>
               {loading && <Spinner />}
-              {error}
+              {error && <Alert type="error" message="Error" description={error} />}
               {hasData && (
                 <MyContext.Provider value={genres}>
                   <TabsView />
